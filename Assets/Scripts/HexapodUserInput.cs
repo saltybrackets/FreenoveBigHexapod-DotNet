@@ -10,30 +10,29 @@ namespace FreenoveBigHexapod.Client.Unity
         private const string Horizontal = "Horizontal";
         private const string Vertical = "Vertical";
         
-        public bool IsMoving { get; set; }
+        private Vector2 currentMovement;
         
         public void Update()
         {
             if (!this.clientInterface.IsReady)
                 return;
 
-            float horizontal = Input.GetAxis(Horizontal);
-            float vertical = Input.GetAxis(Vertical);
+            float x = Input.GetAxisRaw(Horizontal);
+            float y = Input.GetAxisRaw(Vertical);
 
-            bool hasMoveInput = horizontal != 0 
-                                || vertical != 0;
-                
-            if (!this.IsMoving 
-                && hasMoveInput)
+            Vector2 newMovement = new Vector2(x, y);
+    
+            if (newMovement != this.currentMovement
+                && newMovement != Vector2.zero)
             {
-                this.clientInterface.Move(horizontal, vertical);
-                this.IsMoving = true;
+                this.clientInterface.Move(x, y);
+                this.currentMovement = newMovement;
             }
-            else if (this.IsMoving
-                     && !hasMoveInput)
+            else if (this.currentMovement != Vector2.zero
+                     && newMovement == Vector2.zero)
             {
                 this.clientInterface.Stop();
-                this.IsMoving = false;
+                this.currentMovement = Vector2.zero;
             }
         }
     }

@@ -595,8 +595,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   movement:
-    MaxSpeed: 10
+    Speed: 10
     GaitMode: 1
+    ClampSpeed: 1
 --- !u!1 &1824027955
 GameObject:
   m_ObjectHideFlags: 0
