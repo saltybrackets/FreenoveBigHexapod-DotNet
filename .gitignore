@@ -1,0 +1,40 @@
+# IDE Files
+/*.csproj
+/*.pidb
+*.pidb.meta
+/*.sln*
+/*.userprefs
+/*.unityproj
+/*.booproj
+/*.tmp
+/*.svd
+/.idea
+/.vs
+/Library
+/Logs
+/Temp
+/UserSEttings
+/obj
+/etc
+/Assets/Plugins/Editor/JetBrains
+/Builds
+
+
+
+# OS and GIT Generated Files
+.DS_Store*
+Desktop.ini
+Thumbs.db
+Thumbs.db.meta
+*_BACKUP_*
+*_REMOTE_*
+*_LOCAL_*
+*_BASE_*
+*.orig*
+
+# Third-Party Assets
+/Assets/uIntelliSense
+/Assets/uIntelliSense.meta
+/logRunSetup.txt
+/WwiseUnityIntegration_Mac_Src.zip
+/WwiseUnityIntegration_Windows_Src.zip
