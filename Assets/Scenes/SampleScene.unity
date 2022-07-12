@@ -595,9 +595,11 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   movement:
-    RotationIncrementAngle: 0
+    RotationIncrementAngle: 10
     Speed: 10
     GaitMode: 1
+  head:
+    Speed: 0.2
 --- !u!1 &1824027955
 GameObject:
   m_ObjectHideFlags: 0

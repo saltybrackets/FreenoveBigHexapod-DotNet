@@ -35,6 +35,12 @@ namespace FreenoveBigHexapod.Client.Unity
         }
 
 
+        public void Update()
+        {
+            this.head.IncrementTimer(Time.fixedDeltaTime);
+        }
+
+
         /// <summary>
         /// Move head up and down by a given amount.
         /// Negative moves head down.

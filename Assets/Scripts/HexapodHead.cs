@@ -11,12 +11,13 @@ namespace FreenoveBigHexapod.Client
         // CMD_HEAD#1#180 to 0 (left to right)
         public const string HeadMoveCommand = "CMD_HEAD";
 
-        public float Speed = 0.1f;
+        public float Speed = 0.3f;
         
         private HexapodClient client;
-        private float currentPitch = 115;
-        private float currentRoll = 90;
+        private int currentPitch = 115;
+        private int currentRoll = 90;
 
+        private float timer;
 
         public HexapodHead(HexapodClient client)
         {
@@ -24,12 +25,17 @@ namespace FreenoveBigHexapod.Client
         }
 
 
-        public float CurrentPitch
+        public void IncrementTimer(float amount)
+        {
+            this.timer += amount;
+        }
+        
+        public int CurrentPitch
         {
             get { return this.currentPitch; }
         }
 
-        public float CurrentRoll
+        public int CurrentRoll
         {
             get { return this.currentRoll; }
         }
@@ -37,14 +43,14 @@ namespace FreenoveBigHexapod.Client
 
         public void Pitch(int amount)
         {
-            float angle = this.CurrentPitch + (amount * this.Speed);
+            int angle = this.CurrentPitch + amount;
             SetPitch(angle);
         }
 
 
         public void Roll(int amount)
         {
-            float angle = this.CurrentRoll + (amount * this.Speed);
+            int angle = this.CurrentRoll + amount;
             SetRoll(angle);
         }
         
@@ -55,17 +61,20 @@ namespace FreenoveBigHexapod.Client
         /// Max up is 180.
         /// </summary>
         /// <param name="angle">Angle between 50 and 180.</param>
-        public void SetPitch(float angle)
+        public void SetPitch(int angle)
         {
             if (angle is < 50 or > 180)
                 return;
             
-            this.currentPitch = angle;
+            if (this.timer < this.Speed)
+                return;
+            
+            this.timer = 0;
             string command = $"{HeadMoveCommand}"
                              + $"#0"
-                             + $"#{(int)angle}";
+                             + $"#{angle}";
             this.client.WriteToSocket(command);
-            
+            this.currentPitch = angle;
         }
 
 
@@ -75,16 +84,20 @@ namespace FreenoveBigHexapod.Client
         /// Max left is 180.
         /// </summary>
         /// <param name="angle">Angle between 0 and 180.</param>
-        public void SetRoll(float angle)
+        public void SetRoll(int angle)
         {
             if (angle is < 0 or > 180)
                 return;
             
-            this.currentRoll = angle;
+            if (this.timer < this.Speed)
+                return;
+            
+            this.timer = 0;
             string command = $"{HeadMoveCommand}"
                              + $"#1"
-                             + $"#{(int)angle}";
+                             + $"#{angle}";
             this.client.WriteToSocket(command);
+            this.currentRoll = angle;
         }
     }
 }
