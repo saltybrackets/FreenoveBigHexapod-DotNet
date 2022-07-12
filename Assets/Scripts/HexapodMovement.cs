@@ -12,14 +12,14 @@ namespace FreenoveBigHexapod.Client
 
         private const int MoveFactor = 35; // How long to hold movement if left uninterrupted.
 
+        [Range(1,180)]
+        public int RotationIncrementAngle = 10;
+        
         [Range(1, 11)]
         public int Speed = 10;
 
-        [Range(1, 2)]
-        public int GaitMode = 1;
+        public GaitType GaitMode = GaitType.Normal;
 
-        public bool ClampSpeed = true;
-        
         private HexapodClient client;
 
 
@@ -39,14 +39,34 @@ namespace FreenoveBigHexapod.Client
                              + $"#0";
             this.client.WriteToSocket(command);
         }
+
+
+        public void Rotate(Rotation rotationDirection)
+        {
+            int sign = rotationDirection == Rotation.Clockwise
+                           ? 1
+                           : -1;
+
+            int angle = this.RotationIncrementAngle * sign;
+            int speed = this.Speed;
+            int x = MoveFactor * sign;
+            int y = 0;
+            int gaitFlag = (int)this.GaitMode;
+            
+            string command = $"{MoveCommand}"
+                             + $"#{gaitFlag}"
+                             + $"#{x}"
+                             + $"#{y}"
+                             + $"#{speed}"
+                             + $"#{angle}";
+            this.client.WriteToSocket(command);
+        }
         
 
         public void Move(
-            float x,
-            float y)
+            int x,
+            int y)
         {
-            Debug.Log($"Moving: x{x} y{y}");
-            
             if (!this.client.SocketReady)
                 return;
 
@@ -67,15 +87,9 @@ namespace FreenoveBigHexapod.Client
                     x = -MoveFactor;
             }
 
-            int speed = this.ClampSpeed
-                            ? this.Speed
-                            : Math.Max(
-                                (int)Mathf.Abs((Mathf.Sign(y) * this.Speed)),
-                                (int)Mathf.Abs((Mathf.Sign(y) * this.Speed)));
-            
-            // TODO
+            int speed = this.Speed;
             int angle = 0;
-            int gaitFlag = 1;
+            int gaitFlag = (int)this.GaitMode;
             
             string command = $"{MoveCommand}"
                              + $"#{gaitFlag}"

@@ -12,12 +12,14 @@ namespace FreenoveBigHexapod.Client.Unity
         public UnityEvent Disconnected;
         public HexapodDataEvent DataReceived;
 
-        
         [SerializeField]
         private HexapodClient client;
-        
+
         [SerializeField]
         private HexapodMovement movement;
+
+        [SerializeField]
+        private HexapodHead head;
 
         public bool IsReady
         {
@@ -29,10 +31,41 @@ namespace FreenoveBigHexapod.Client.Unity
         {
             this.client = new HexapodClient();
             this.movement = new HexapodMovement(this.client);
+            this.head = new HexapodHead(this.client);
         }
 
 
-        public void Move(float x, float y)
+        /// <summary>
+        /// Move head up and down by a given amount.
+        /// Negative moves head down.
+        /// Positive moves head up.
+        /// </summary>
+        /// <param name="amount">Amount to move head in degrees.</param>
+        public void PitchHead(int amount)
+        {
+            this.head.Pitch(amount);
+        }
+
+
+        /// <summary>
+        /// Move head left and right.
+        /// Negative moves head right.
+        /// Positive moves head left.
+        /// </summary>
+        /// <param name="amount">Amount to move head in degrees.</param>
+        public void RollHead(int amount)
+        {
+            this.head.Roll(amount);
+        }
+
+
+        public void Rotate(Rotation rotationDirection)
+        {
+            this.movement.Rotate(rotationDirection);
+        }
+
+
+        public void Move(int x, int y)
         {
             this.movement.Move(x, y);
         }
@@ -42,7 +75,7 @@ namespace FreenoveBigHexapod.Client.Unity
         {
             this.movement.Stop();
         }
-        
+
 
         public void ToggleConnection()
         {
@@ -51,7 +84,7 @@ namespace FreenoveBigHexapod.Client.Unity
             else
                 Disconnect();
         }
-        
+
 
         private void Connect()
         {
