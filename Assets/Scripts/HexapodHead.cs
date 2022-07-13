@@ -7,29 +7,24 @@ namespace FreenoveBigHexapod.Client
     [Serializable]
     public class HexapodHead
     {
-        // CMD_HEAD#0#50 to 180 ---- (down to up)
-        // CMD_HEAD#1#180 to 0 (left to right)
         public const string HeadMoveCommand = "CMD_HEAD";
 
-        public float Speed = 0.3f;
+        private const int MaxPitch = 180;
+        private const int MinPitch = 50;
+        private const int MaxRoll = 180;
+        private const int MinRoll = 0;
         
         private HexapodClient client;
         private int currentPitch = 115;
         private int currentRoll = 90;
 
-        private float timer;
-
+        
         public HexapodHead(HexapodClient client)
         {
             this.client = client;
         }
 
 
-        public void IncrementTimer(float amount)
-        {
-            this.timer += amount;
-        }
-        
         public int CurrentPitch
         {
             get { return this.currentPitch; }
@@ -41,19 +36,27 @@ namespace FreenoveBigHexapod.Client
         }
 
 
+        /// <summary>
+        /// Pitch head forward or back by given amount.
+        /// </summary>
+        /// <param name="amount">Amount to pitch.</param>
         public void Pitch(int amount)
         {
             int angle = this.CurrentPitch + amount;
             SetPitch(angle);
         }
 
-
+        
+        /// <summary>
+        /// Roll head left or right by a given amount.
+        /// </summary>
+        /// <param name="amount">Amount to roll.</param>
         public void Roll(int amount)
         {
             int angle = this.CurrentRoll + amount;
             SetRoll(angle);
         }
-        
+
 
         /// <summary>
         /// Move head up and down.
@@ -63,13 +66,9 @@ namespace FreenoveBigHexapod.Client
         /// <param name="angle">Angle between 50 and 180.</param>
         public void SetPitch(int angle)
         {
-            if (angle is < 50 or > 180)
+            if (angle is < MinPitch or > MaxPitch)
                 return;
             
-            if (this.timer < this.Speed)
-                return;
-            
-            this.timer = 0;
             string command = $"{HeadMoveCommand}"
                              + $"#0"
                              + $"#{angle}";
@@ -86,13 +85,9 @@ namespace FreenoveBigHexapod.Client
         /// <param name="angle">Angle between 0 and 180.</param>
         public void SetRoll(int angle)
         {
-            if (angle is < 0 or > 180)
+            if (angle is < MinRoll or > MaxRoll)
                 return;
-            
-            if (this.timer < this.Speed)
-                return;
-            
-            this.timer = 0;
+           
             string command = $"{HeadMoveCommand}"
                              + $"#1"
                              + $"#{angle}";

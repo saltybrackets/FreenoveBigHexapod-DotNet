@@ -1,5 +1,6 @@
 namespace FreenoveBigHexapod.Client.Unity
 {
+    using System;
     using TMPro;
     using UnityEngine;
     using UnityEngine.Events;
@@ -7,10 +8,29 @@ namespace FreenoveBigHexapod.Client.Unity
 
     public class HexapodClientInterface : MonoBehaviour
     {
+        /// <summary>
+        /// Raised when attempting connection.
+        /// </summary>
         public UnityEvent Connecting;
+        
+        /// <summary>
+        /// Raised once successfully connected.
+        /// </summary>
         public UnityEvent Connected;
+        
+        /// <summary>
+        /// Raised when disconnected.
+        /// </summary>
         public UnityEvent Disconnected;
+        
+        /// <summary>
+        /// Raised when data is received from server.
+        /// </summary>
         public HexapodDataEvent DataReceived;
+
+        [SerializeField]
+        [Range(0.1f, 1f)]
+        private float commandLatency;
 
         [SerializeField]
         private HexapodClient client;
@@ -21,6 +41,11 @@ namespace FreenoveBigHexapod.Client.Unity
         [SerializeField]
         private HexapodHead head;
 
+        private float commandLatencyTimer;
+
+        /// <summary>
+        /// Returns true if the hexapod client is connected to a hexapod server.
+        /// </summary>
         public bool IsReady
         {
             get { return this.client.SocketReady; }
@@ -37,7 +62,7 @@ namespace FreenoveBigHexapod.Client.Unity
 
         public void Update()
         {
-            this.head.IncrementTimer(Time.fixedDeltaTime);
+            this.commandLatencyTimer += Time.fixedDeltaTime;
         }
 
 
@@ -49,7 +74,7 @@ namespace FreenoveBigHexapod.Client.Unity
         /// <param name="amount">Amount to move head in degrees.</param>
         public void PitchHead(int amount)
         {
-            this.head.Pitch(amount);
+            DispatchCommand(() => this.head.Pitch(amount));
         }
 
 
@@ -61,34 +86,68 @@ namespace FreenoveBigHexapod.Client.Unity
         /// <param name="amount">Amount to move head in degrees.</param>
         public void RollHead(int amount)
         {
-            this.head.Roll(amount);
+            DispatchCommand(() => this.head.Roll(amount));
         }
 
 
+        /// <summary>
+        /// Rotate the bot's body.
+        /// </summary>
+        /// <param name="rotationDirection">Direction of rotation.</param>
         public void Rotate(Rotation rotationDirection)
         {
-            this.movement.Rotate(rotationDirection);
+            DispatchCommand(() => this.movement.Rotate(rotationDirection));
         }
 
 
+        /// <summary>
+        /// Start moving the bot in a given direction.
+        /// Values should be clamped to -1, 0, or 1.
+        /// </summary>
+        /// <param name="x">Left(-1) or right (1).</param>
+        /// <param name="y">Backwards (-1) or forward(1).(</param>
         public void Move(int x, int y)
         {
-            this.movement.Move(x, y);
+            DispatchCommand(() => this.movement.Move(x, y));
         }
 
 
+        /// <summary>
+        /// If the bot is in locomotion, stop it.
+        /// Alias for Move(0, 0)
+        /// </summary>
         public void Stop()
         {
-            this.movement.Stop();
+            DispatchCommand(() => this.movement.Stop());
         }
 
 
+        /// <summary>
+        /// Connect if currently disconnected, or disconnect if currently connected.
+        /// </summary>
         public void ToggleConnection()
         {
             if (!this.client.SocketReady)
                 Connect();
             else
                 Disconnect();
+        }
+
+
+        // Used to impose a delay between commands.
+        private void DispatchCommand(Action action)
+        {
+            if (this.commandLatencyTimer < this.commandLatency)
+                return;
+
+            this.commandLatencyTimer = 0;
+            action();
+        }
+
+
+        private void OnConnected()
+        {
+            // TODO
         }
 
 
@@ -101,6 +160,7 @@ namespace FreenoveBigHexapod.Client.Unity
             
             if (this.client.OpenSocket())
             {
+                OnConnected();
                 this.Connected.Invoke();
             }
             else
