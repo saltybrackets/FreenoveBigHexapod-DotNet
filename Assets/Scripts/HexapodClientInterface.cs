@@ -4,6 +4,7 @@ namespace FreenoveBigHexapod.Client.Unity
     using TMPro;
     using UnityEngine;
     using UnityEngine.Events;
+    using UnityEngine.UI;
 
 
     public class HexapodClientInterface : MonoBehaviour
@@ -29,6 +30,9 @@ namespace FreenoveBigHexapod.Client.Unity
         public HexapodDataEvent DataReceived;
 
         [SerializeField]
+        private RawImage videoFeed;
+        
+        [SerializeField]
         [Range(0.1f, 1f)]
         private float commandLatency;
 
@@ -43,6 +47,9 @@ namespace FreenoveBigHexapod.Client.Unity
 
         [SerializeField]
         private HexapodPosing posing;
+
+        [SerializeField]
+        private HexapodVideoStream video;
 
         private float commandLatencyTimer;
 
@@ -61,12 +68,21 @@ namespace FreenoveBigHexapod.Client.Unity
             this.movement = new HexapodMovement(this.client);
             this.head = new HexapodHead(this.client);
             this.posing = new HexapodPosing(this.client);
+            this.video = new HexapodVideoStream();
         }
 
 
         public void Update()
         {
             this.commandLatencyTimer += Time.fixedDeltaTime;
+            
+            if (this.video.SocketReady)
+                this.video.StreamData();
+            Texture2D image = this.video.GetPicture();
+            if (image != null)
+            {
+                this.videoFeed.texture = image;
+            }
         }
 
 
@@ -160,7 +176,8 @@ namespace FreenoveBigHexapod.Client.Unity
 
         private void OnConnected()
         {
-            // TODO
+            SetPosition(0, 0, 20);
+            this.video.StartStreaming();
         }
 
 

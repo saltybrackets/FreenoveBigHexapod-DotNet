@@ -12,11 +12,11 @@ namespace FreenoveBigHexapod.Client.Unity
 
         private const string Strafe = "Strafe";
         private const string Sneak = "Sneak";
-        
+
         public HexapodClientInterface clientInterface;
 
         private Vector2 currentMovement = Vector2.zero;
-        private bool isSneaking = true;
+
 
         public void Update()
         {
@@ -56,7 +56,8 @@ namespace FreenoveBigHexapod.Client.Unity
             else if (Input.GetButtonUp(Sneak))
                 this.clientInterface.SetPosition(0, 0, 20);
         }
-        
+
+
         // Movement where left and right cause bot to turn.
         private void HandleMovement()
         {

@@ -8,11 +8,10 @@ namespace FreenoveBigHexapod.Client
     public class HexapodHead
     {
         public const string HeadMoveCommand = "CMD_HEAD";
-
-        private const int MaxPitch = 180;
-        private const int MinPitch = 50;
-        private const int MaxRoll = 180;
-        private const int MinRoll = 0;
+        public const int MaxPitch = 180;
+        public const int MinPitch = 50;
+        public const int MaxRoll = 180;
+        public const int MinRoll = 0;
 
         private HexapodClient client;
 
