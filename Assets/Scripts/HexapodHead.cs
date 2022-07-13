@@ -13,27 +13,18 @@ namespace FreenoveBigHexapod.Client
         private const int MinPitch = 50;
         private const int MaxRoll = 180;
         private const int MinRoll = 0;
-        
-        private HexapodClient client;
-        private int currentPitch = 115;
-        private int currentRoll = 90;
 
-        
+        private HexapodClient client;
+
+
         public HexapodHead(HexapodClient client)
         {
             this.client = client;
         }
 
 
-        public int CurrentPitch
-        {
-            get { return this.currentPitch; }
-        }
-
-        public int CurrentRoll
-        {
-            get { return this.currentRoll; }
-        }
+        public int CurrentPitch { get; private set; } = 115;
+        public int CurrentRoll { get; private set; } = 90;
 
 
         /// <summary>
@@ -46,7 +37,7 @@ namespace FreenoveBigHexapod.Client
             SetPitch(angle);
         }
 
-        
+
         /// <summary>
         /// Roll head left or right by a given amount.
         /// </summary>
@@ -73,7 +64,7 @@ namespace FreenoveBigHexapod.Client
                              + $"#0"
                              + $"#{angle}";
             this.client.WriteToSocket(command);
-            this.currentPitch = angle;
+            this.CurrentPitch = angle;
         }
 
 
@@ -92,7 +83,7 @@ namespace FreenoveBigHexapod.Client
                              + $"#1"
                              + $"#{angle}";
             this.client.WriteToSocket(command);
-            this.currentRoll = angle;
+            this.CurrentRoll = angle;
         }
     }
 }

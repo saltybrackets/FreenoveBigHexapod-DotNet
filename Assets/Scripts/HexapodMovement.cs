@@ -1,8 +1,6 @@
 namespace FreenoveBigHexapod.Client
 {
     using System;
-    using UnityEngine;
-    using UnityEngine.Serialization;
 
 
     [Serializable]
@@ -10,14 +8,10 @@ namespace FreenoveBigHexapod.Client
     {
         public const string MoveCommand = "CMD_MOVE";
 
-        private const int MoveFactor = 35; // How long to hold movement if left uninterrupted.
+        private const int MoveFactor = 35; 
 
-        [Range(1,180)]
         public int RotationIncrementAngle = 10;
-        
-        [Range(1, 11)]
         public int Speed = 10;
-
         public GaitType GaitMode = GaitType.Normal;
 
         private HexapodClient client;
@@ -61,7 +55,7 @@ namespace FreenoveBigHexapod.Client
                              + $"#{angle}";
             this.client.WriteToSocket(command);
         }
-        
+
 
         public void Move(
             int x,

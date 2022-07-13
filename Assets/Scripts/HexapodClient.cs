@@ -9,8 +9,8 @@ namespace FreenoveBigHexapod.Client
     [Serializable]
     public class HexapodClient
     {
-        private string host = "192.168.1.108";
-        private Int32 port = 5002;
+        public string Host = "192.168.1.108";
+        public int Port = 5002;
         
         private TcpClient tcpClient;
         private NetworkStream networkStream;
@@ -25,7 +25,7 @@ namespace FreenoveBigHexapod.Client
         {
             try
             {
-                this.tcpClient = new TcpClient(this.host, this.port);
+                this.tcpClient = new TcpClient(this.Host, this.Port);
                 this.networkStream = this.tcpClient.GetStream();
                 this.streamWriter = new StreamWriter(this.networkStream);
                 this.streamReader = new StreamReader(this.networkStream);

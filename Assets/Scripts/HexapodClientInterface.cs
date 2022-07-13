@@ -41,6 +41,9 @@ namespace FreenoveBigHexapod.Client.Unity
         [SerializeField]
         private HexapodHead head;
 
+        [SerializeField]
+        private HexapodPosing posing;
+
         private float commandLatencyTimer;
 
         /// <summary>
@@ -57,6 +60,7 @@ namespace FreenoveBigHexapod.Client.Unity
             this.client = new HexapodClient();
             this.movement = new HexapodMovement(this.client);
             this.head = new HexapodHead(this.client);
+            this.posing = new HexapodPosing(this.client);
         }
 
 
@@ -119,6 +123,15 @@ namespace FreenoveBigHexapod.Client.Unity
         public void Stop()
         {
             DispatchCommand(() => this.movement.Stop());
+        }
+
+
+        public void SetPosition(
+            int x,
+            int y,
+            int z)
+        {
+            DispatchCommand(() => this.posing.SetPosition(x, y, z));
         }
 
 
