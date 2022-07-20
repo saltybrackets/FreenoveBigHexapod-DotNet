@@ -4,23 +4,36 @@ namespace FreenoveBigHexapod.Client
     using System.Collections.Concurrent;
     using System.IO;
     using System.Net.Sockets;
-    using UnityEngine;
-    using UnityEngine.UI;
-
-
+    
+    
+    [Serializable]
     public class HexapodVideoStream
     {
         public string Host = "192.168.1.108";
         public int Port = 8002;
-
-        private TcpClient tcpClient;
-        private NetworkStream networkStream;
         private BinaryReader binaryReader;
         private ConcurrentQueue<byte[]> dataQueue = new ConcurrentQueue<byte[]>();
+        private NetworkStream networkStream;
+
+        private TcpClient tcpClient;
+
 
         #region Properties
         public bool SocketReady { get; private set; }  = false;
         #endregion
+
+
+        public byte[] GetFeedData()
+        {
+            byte[] data;
+            if (this.dataQueue.Count > 0
+                && this.dataQueue.TryDequeue(out data))
+            {
+                return data;
+            }
+
+            return null;
+        }
 
 
         public bool StartStreaming()
@@ -32,14 +45,11 @@ namespace FreenoveBigHexapod.Client
                 this.binaryReader = new BinaryReader(this.networkStream);
                 this.SocketReady = true;
                 
-                Debug.Log("Video stream connected");
-                
                 return true;
             }
             
             catch (Exception e)
             {
-                Debug.LogError($"Video socket error: {e}");
             }
 
             return false;
@@ -54,8 +64,6 @@ namespace FreenoveBigHexapod.Client
             
             this.tcpClient.Close();
             this.SocketReady = false;
-            
-            Debug.Log("Video stream disconnected");
         }
 
 
@@ -79,21 +87,6 @@ namespace FreenoveBigHexapod.Client
             catch
             {
             }
-        }
-
-        public Texture2D GetPicture()
-        {
-            Texture2D texture2D = new Texture2D(1, 1);
-            byte[] data;
-            if (this.dataQueue.Count > 0
-                && this.dataQueue.TryDequeue(out data))
-            {
-                texture2D.LoadImage(data);
-                texture2D.Apply();
-                return texture2D;
-            }
-
-            return null;
         }
     }
 }

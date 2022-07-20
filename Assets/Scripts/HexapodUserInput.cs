@@ -52,9 +52,9 @@ namespace FreenoveBigHexapod.Client.Unity
         private void HandlePoseZ()
         {
             if (Input.GetButtonDown(Sneak))
-                this.clientInterface.SetPosition(0, 0, -20);
+                this.clientInterface.SetPosePosition(0, 0, -20);
             else if (Input.GetButtonUp(Sneak))
-                this.clientInterface.SetPosition(0, 0, 20);
+                this.clientInterface.SetPosePosition(0, 0, 20);
         }
 
 

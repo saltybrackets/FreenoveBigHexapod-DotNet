@@ -1,7 +1,6 @@
 namespace FreenoveBigHexapod.Client.Unity
 {
     using System;
-    using TMPro;
     using UnityEngine;
     using UnityEngine.Events;
     using UnityEngine.UI;
@@ -13,17 +12,27 @@ namespace FreenoveBigHexapod.Client.Unity
         /// Raised when attempting connection.
         /// </summary>
         public UnityEvent Connecting;
-        
+
         /// <summary>
         /// Raised once successfully connected.
         /// </summary>
         public UnityEvent Connected;
-        
+
         /// <summary>
         /// Raised when disconnected.
         /// </summary>
         public UnityEvent Disconnected;
-        
+
+        /// <summary>
+        /// Raised once video stream socket has connected and started streaming.
+        /// </summary>
+        public UnityEvent VideoConnected;
+
+        /// <summary>
+        /// Raised once video stream socket has disconnected and stopped streaming.
+        /// </summary>
+        public UnityEvent VideoDisconnected;
+
         /// <summary>
         /// Raised when data is received from server.
         /// </summary>
@@ -31,7 +40,7 @@ namespace FreenoveBigHexapod.Client.Unity
 
         [SerializeField]
         private RawImage videoFeed;
-        
+
         [SerializeField]
         [Range(0.1f, 1f)]
         private float commandLatency;
@@ -52,6 +61,7 @@ namespace FreenoveBigHexapod.Client.Unity
         private HexapodVideoStream video;
 
         private float commandLatencyTimer;
+        private Color originalVideoFeedColor;
 
         /// <summary>
         /// Returns true if the hexapod client is connected to a hexapod server.
@@ -69,6 +79,8 @@ namespace FreenoveBigHexapod.Client.Unity
             this.head = new HexapodHead(this.client);
             this.posing = new HexapodPosing(this.client);
             this.video = new HexapodVideoStream();
+
+            this.originalVideoFeedColor = this.videoFeed.color;
         }
 
 
@@ -77,12 +89,7 @@ namespace FreenoveBigHexapod.Client.Unity
             this.commandLatencyTimer += Time.fixedDeltaTime;
             
             if (this.video.SocketReady)
-                this.video.StreamData();
-            Texture2D image = this.video.GetPicture();
-            if (image != null)
-            {
-                this.videoFeed.texture = image;
-            }
+                UpdateVideo();
         }
 
 
@@ -142,7 +149,7 @@ namespace FreenoveBigHexapod.Client.Unity
         }
 
 
-        public void SetPosition(
+        public void SetPosePosition(
             int x,
             int y,
             int z)
@@ -176,8 +183,13 @@ namespace FreenoveBigHexapod.Client.Unity
 
         private void OnConnected()
         {
-            SetPosition(0, 0, 20);
-            this.video.StartStreaming();
+            SetPosePosition(0, 0, 20);
+
+            if (this.video.StartStreaming())
+            {
+                this.videoFeed.color = Color.white;
+                this.VideoConnected.Invoke();
+            }
         }
 
 
@@ -195,15 +207,51 @@ namespace FreenoveBigHexapod.Client.Unity
             }
             else
             {
+                OnDisconnected();
                 this.Disconnected.Invoke();
             }
         }
 
 
+        private void OnDisconnected()
+        {
+            this.videoFeed.texture = null;
+            this.videoFeed.color = this.originalVideoFeedColor;
+        }
+
+
         private void Disconnect()
         {
+            this.video.StopStreaming();
             this.client.CloseSocket();
+            OnDisconnected();
+            
             this.Disconnected.Invoke();
+            this.VideoDisconnected.Invoke();
+        }
+
+
+        private void UpdateVideo()
+        {
+            this.video.StreamData();
+            Texture2D image = DecodeVideoFeed(this.video.GetFeedData());
+            if (image != null)
+                this.videoFeed.texture = image;
+        }
+
+
+        private Texture2D DecodeVideoFeed(byte[] data)
+        {
+            Texture2D texture2D = new Texture2D(1, 1);
+            
+            if (data != null)
+            {
+                texture2D.LoadImage(data);
+                texture2D.Apply();
+                return texture2D;
+            }
+
+            return null;
         }
     }
 }
